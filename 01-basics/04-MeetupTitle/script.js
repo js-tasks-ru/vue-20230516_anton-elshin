@@ -1,10 +1,6 @@
 import { createApp, defineComponent } from './vendor/vue.esm-browser.js';
 
 const API_URL = 'https://course-vue.javascript.ru/api';
-const MAX_MEETUPS = 5;
-const meetupsIds = Array(MAX_MEETUPS)
-  .fill()
-  .map((_, i) => i + 1);
 
 function fetchMeetupById(meetupId) {
   return fetch(`${API_URL}/meetups/${meetupId}`).then((response) => {
@@ -23,7 +19,6 @@ const App = defineComponent({
 
   data() {
     return {
-      meetups: meetupsIds,
       meetupId: 0,
       title: '',
     };
