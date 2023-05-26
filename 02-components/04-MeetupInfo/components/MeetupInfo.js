@@ -9,11 +9,11 @@ export default defineComponent({
     },
 
     place: {
-      place: String,
+      type: String,
     },
 
     date: {
-      place: String,
+      type: String,
     },
   },
 
