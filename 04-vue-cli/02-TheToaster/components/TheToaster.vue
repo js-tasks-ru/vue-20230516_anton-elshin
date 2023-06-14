@@ -1,13 +1,8 @@
 <template>
   <div class="toasts">
-    <div class="toast toast_success">
-      <UiIcon class="toast__icon" icon="check-circle" />
-      <span>Success Toast Example</span>
-    </div>
-
-    <div class="toast toast_error">
-      <UiIcon class="toast__icon" icon="alert-circle" />
-      <span>Error Toast Example</span>
+    <div v-for="toast in $data.toasts" :class="['toast', `toast_${toast.type}`]">
+      <UiIcon class="toast__icon" :icon="toast.icon" />
+      <span>{{ toast.message }}</span>
     </div>
   </div>
 </template>
@@ -19,6 +14,43 @@ export default {
   name: 'TheToaster',
 
   components: { UiIcon },
+
+  data() {
+    return {
+      id: 0,
+      toasts: []
+    };
+  },
+
+  methods: {
+    getId() {
+      this.id += 1;
+      return this.id;
+    },
+    success(message) {
+      const toast = {
+        id: this.getId(),
+        type: 'success',
+        icon: 'check-circle',
+        message: message,
+        duration: 5000,
+      };
+      this.toasts.push(toast);
+      setTimeout(() => this.toasts = this.toasts.filter(item => item.id !== toast.id), toast.duration);
+    },
+
+    error(message) {
+      const toast = {
+        id: this.getId(),
+        type: 'error',
+        icon: 'alert-circle',
+        message: message,
+        duration: 5000,
+      };
+      this.toasts.push(toast);
+      setTimeout(() => this.toasts = this.toasts.filter(item => item.id !== toast.id), toast.duration);
+    },
+  },
 };
 </script>
 
