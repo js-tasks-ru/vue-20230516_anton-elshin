@@ -21,6 +21,15 @@
         {{ option.text }}
       </button>
     </div>
+    <select v-model="selectKey" @change="$emit('update:modelValue', $event.target.value)" hidden>
+      <option
+        v-for="option in options"
+        :value="option.value"
+        :selected="option.value === modelValue"
+      >
+        {{option.text}}
+      </option>
+    </select>
   </div>
 </template>
 
@@ -35,13 +44,15 @@ export default {
   data() {
     return {
       isOpened: false,
+      selectKey: this.modelValue
     }
   },
 
   methods: {
     toggleOptions() {
       this.isOpened = !this.isOpened;
-    },
+      this.selected = this.modelValue;
+    }
   },
 
   computed: {
@@ -79,6 +90,7 @@ export default {
     modelValue: {
       type: String,
       required: true,
+      default: '',
     },
 
     title: {
