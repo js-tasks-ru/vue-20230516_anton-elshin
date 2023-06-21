@@ -1,18 +1,24 @@
 <template>
-  <div class="dropdown dropdown_opened">
-    <button type="button" class="dropdown__toggle dropdown__toggle_icon">
-      <UiIcon icon="tv" class="dropdown__icon" />
-      <span>Title</span>
+  <div class="dropdown" :class="{dropdown_opened : isOpened}">
+    <button type="button"
+      class="dropdown__toggle"
+      :class="{ dropdown__toggle_icon: hasIcon }"
+      @click="toggleOptions()"
+    >
+      <UiIcon :icon="selectedIcon" class="dropdown__icon" />
+      <span>{{ selectedTitle }}</span>
     </button>
 
-    <div class="dropdown__menu" role="listbox">
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <UiIcon icon="tv" class="dropdown__icon" />
-        Option 1
-      </button>
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <UiIcon icon="tv" class="dropdown__icon" />
-        Option 2
+    <div v-show="isOpened" class="dropdown__menu" role="listbox">
+      <button
+        v-for="option in options"
+        class="dropdown__item"
+        :class="{ dropdown__item_icon: hasIcon }"
+        role="option" type="button"
+        @click="$emit('update:modelValue', option.value); toggleOptions();"
+      >
+        <UiIcon v-if="option.icon" :icon="option.icon" class="dropdown__icon" />
+        {{ option.text }}
       </button>
     </div>
   </div>
@@ -25,6 +31,63 @@ export default {
   name: 'UiDropdown',
 
   components: { UiIcon },
+
+  data() {
+    return {
+      isOpened: false,
+    }
+  },
+
+  methods: {
+    toggleOptions() {
+      this.isOpened = !this.isOpened;
+    },
+  },
+
+  computed: {
+    selectedTitle() {
+      let title = this.title;
+
+      if(this.modelValue) {
+        return this.options.find(option => option.value === this.modelValue)?.text;
+      }
+
+      return title;
+    },
+
+    selectedIcon() {
+      let icon = "tv";
+
+      if(this.modelValue) {
+        return this.options.find(option => option.value === this.modelValue)?.icon;
+      }
+
+      return icon;
+    },
+
+    hasIcon() {
+      return this.options.filter(option => option.icon !== undefined).length > 0;
+    },
+  },
+
+  props: {
+    options: {
+      type: Array,
+      required: true,
+    },
+
+    modelValue: {
+      type: String,
+      required: true,
+    },
+
+    title: {
+      type: String,
+      required: true,
+    }
+  },
+
+
 };
 </script>
 
