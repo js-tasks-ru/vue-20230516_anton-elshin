@@ -21,7 +21,7 @@
         {{ option.text }}
       </button>
     </div>
-    <select v-model="selectKey" @change="$emit('update:modelValue', $event.target.value)" hidden>
+    <select @change="$emit('update:modelValue', $event.target.value)" :value="modelValue" hidden>
       <option
         v-for="option in options"
         :value="option.value"
@@ -43,8 +43,7 @@ export default {
 
   data() {
     return {
-      isOpened: false,
-      selectKey: this.modelValue
+      isOpened: false
     }
   },
 
