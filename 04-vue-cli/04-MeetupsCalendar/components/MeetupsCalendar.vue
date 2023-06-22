@@ -39,9 +39,10 @@ export default {
 
   computed: {
     title() {
-      let monthName = this.currentDate.toLocaleString('default', { month: 'long' });
-      let year = this.currentDate.getFullYear();
-      return monthName[0].toUpperCase() + monthName.slice(1) + ' ' + year + ' г.';
+      return this.currentDate.toLocaleDateString(navigator.language, {
+        month: 'long',
+        year: 'numeric',
+      });
     }
   },
 
