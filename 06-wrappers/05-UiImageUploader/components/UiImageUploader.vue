@@ -1,8 +1,8 @@
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview image-uploader__preview-loading" style="--bg-url: url('/link.jpeg')">
-      <span class="image-uploader__text">Загрузить изображение</span>
-      <input type="file" accept="image/*" class="image-uploader__input" />
+    <label class="image-uploader__preview" :class="{ 'image-uploader__preview-loading' : loading }" :style="cssProps">
+      <span class="image-uploader__text">{{ title }}</span>
+      <input ref="fileUploader" type="file" accept="image/*" class="image-uploader__input" v-bind="$attrs" @change="changeFile" @click="clearFile"/>
     </label>
   </div>
 </template>
@@ -10,6 +10,68 @@
 <script>
 export default {
   name: 'UiImageUploader',
+
+  inheritAttrs: false,
+
+  props: {
+    preview: String,
+    uploader: Function,
+  },
+
+  data() {
+    return {
+      cssProps: {
+        "--bg-url": this.preview ? `url(${this.preview})` : "url(var(--bg-url))"
+      },
+      title: !this.preview ? 'Загрузить изображение' : 'Удалить изображение',
+      loading: false,
+    }
+  },
+
+  emits: ['select', 'upload', 'error', 'remove'],
+
+  methods: {
+    changeFile(event) {
+      if(event.target.files.length > 0 && this.$refs.fileUploader.value !== '') {
+        let file = event.target.files[0];
+        this.$emit('select', file);
+        if(this.uploader) {
+          this.title = 'Загрузка...';
+          this.loading = true;
+          this.uploader(file)
+            .then(
+              result => {
+                this.title = 'Удалить изображение';
+                this.cssProps = new Map().set("--bg-url", `url(${result.image})`);
+                this.$emit('upload', result);
+              },
+              error => {
+                this.title = 'Загрузить изображение';
+                this.$refs.fileUploader.value = null;
+                this.$emit('error', error);
+              }
+            )
+            .finally(() => {
+              this.loading = false;
+            });
+        }
+        else {
+          this.title = 'Удалить изображение';
+          this.cssProps = {
+            "--bg-url": `url(${URL.createObjectURL(file)})`,
+          };
+        }
+      }
+    },
+    clearFile() {
+      if(!this.loading) {
+        this.title = 'Загрузить изображение';
+        this.cssProps = new Map().set("--bg-url", "url(var(--bg-url))");
+        this.$refs.fileUploader.value = null;
+        this.$emit('remove');
+      }
+    }
+  }
 };
 </script>
 
