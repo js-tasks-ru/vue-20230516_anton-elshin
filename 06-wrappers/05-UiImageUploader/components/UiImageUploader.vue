@@ -42,7 +42,9 @@ export default {
             .then(
               result => {
                 this.title = 'Удалить изображение';
-                this.cssProps = new Map().set("--bg-url", `url(${result.image})`);
+                this.cssProps = {
+                  "--bg-url": `url(${result.image})`,
+                };
                 this.$emit('upload', result);
               },
               error => {
@@ -63,12 +65,14 @@ export default {
         }
       }
     },
-    clearFile() {
+    clearFile(event) {
       if(!this.loading) {
         this.title = 'Загрузить изображение';
         this.cssProps = new Map().set("--bg-url", "url(var(--bg-url))");
-        this.$refs.fileUploader.value = null;
-        this.$emit('remove');
+        if(event.target.files.length > 0) {
+          this.$refs.fileUploader.value = null;
+          this.$emit('remove');
+        }
       }
     }
   }
