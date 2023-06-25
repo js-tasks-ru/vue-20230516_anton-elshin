@@ -28,9 +28,19 @@ export default {
     }
   },
 
+  watch: {
+    modelValue: {
+      deep: true,
+      immediate: true,
+      handler() {
+        this.currentDate = this.modelValue ? new Date(new Date().setTime(this.modelValue)) : '';
+      }
+    }
+  },
+
   data() {
     return {
-      currentDate: new Date(new Date().setTime(this.modelValue)),
+      currentDate: this.modelValue ? new Date(new Date().setTime(this.modelValue)) : '',
     }
   },
 
@@ -39,9 +49,15 @@ export default {
   computed: {
     modelValueProxy: {
       get() {
+        if(this.currentDate === '') {
+          return '';
+        }
         const currentDateISO = this.currentDate.toISOString();
 
-        if(this.type === 'time' && !this.step) {
+        if(this.type === 'date') {
+          return currentDateISO.slice(0, 10);
+        }
+        if(this.type === 'time' && (!this.step || this.step % 60 === 0)) {
           return currentDateISO.slice(11, 16);
         }
         else if(this.type === 'time' && this.step) {
@@ -51,10 +67,18 @@ export default {
           return currentDateISO.slice(0, 10) + ' ' + currentDateISO.slice(11, 16);
         }
 
-        return currentDateISO.slice(0, 10);
+        return null;
       },
 
       set(value) {
+        if(this.currentDate === '') {
+          this.currentDate = new Date();
+          this.currentDate.setHours(this.currentDate.getTimezoneOffset()/60 * -1);
+          this.currentDate.setMinutes(0);
+          this.currentDate.setSeconds(0);
+          this.currentDate.setMilliseconds(0);
+        }
+
         if(this.type === 'date') {
           const yyyy = value.slice(0, 4);
           const mm = parseInt(value.slice(5, 7)) - 1;
@@ -64,7 +88,7 @@ export default {
           this.currentDate.setMonth(mm);
           this.currentDate.setDate(dd);
         }
-        else if(this.type === 'time' && !this.step) {
+        else if(this.type === 'time' && (!this.step || this.step % 60 === 0)) {
           const hh = parseInt(value.slice(0, 2));
           const mi = parseInt(value.slice(3, 5));
 
@@ -94,7 +118,12 @@ export default {
           this.currentDate.setMinutes(mi);
         }
 
-        this.$emit('update:modelValue', new Date(this.currentDate.getTime()).getTime());
+        if(this.currentDate !== '') {
+          this.$emit('update:modelValue', this.currentDate.getTime());
+        }
+        else {
+          this.$emit('update:modelValue', '');
+        }
       }
     }
   },
