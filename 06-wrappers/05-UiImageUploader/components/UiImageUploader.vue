@@ -1,6 +1,6 @@
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview" :class="{ 'image-uploader__preview-loading' : loading }" :style="cssProps">
+    <label class="image-uploader__preview" :class="{ 'image-uploader__preview-loading' : loading }" :style="`--bg-url: url(${link})`">
       <span class="image-uploader__text">{{ title }}</span>
       <input ref="fileUploader" type="file" accept="image/*" class="image-uploader__input" v-bind="$attrs" @change="changeFile" @click="clearFile"/>
     </label>
@@ -20,9 +20,7 @@ export default {
 
   data() {
     return {
-      cssProps: {
-        "--bg-url": this.preview ? `url(${this.preview})` : "url(var(--bg-url))"
-      },
+      link: this.preview ? this.preview : "var(--bg-url)",
       title: !this.preview ? 'Загрузить изображение' : 'Удалить изображение',
       loading: false,
     }
@@ -42,9 +40,7 @@ export default {
             .then(
               result => {
                 this.title = 'Удалить изображение';
-                this.cssProps = {
-                  "--bg-url": `url(${result.image})`,
-                };
+                this.link = URL.createObjectURL(file);
                 this.$emit('upload', result);
               },
               error => {
@@ -59,20 +55,19 @@ export default {
         }
         else {
           this.title = 'Удалить изображение';
-          this.cssProps = {
-            "--bg-url": `url(${URL.createObjectURL(file)})`,
-          };
+          this.link = URL.createObjectURL(file);
         }
       }
     },
     clearFile(event) {
       if(!this.loading) {
         this.title = 'Загрузить изображение';
-        this.cssProps = new Map().set("--bg-url", "url(var(--bg-url))");
-        if(event.target.files.length > 0) {
+        if(event.target.files.length > 0 || this.link === this.preview) {
+          event.preventDefault();
           this.$refs.fileUploader.value = null;
           this.$emit('remove');
         }
+        this.link = "var(--bg-url)";
       }
     }
   }
