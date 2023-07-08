@@ -10,7 +10,7 @@
       class="form-control"
       :class="{ 'form-control_rounded': rounded, 'form-control_sm': small }"
       v-bind="$attrs"
-      :value="modelValueProxy" @input="inputValue($event.target.value)" @change="changeValue($event.target.value)"
+      :value="modelValueProxy" @[eventName]="handler($event.target.value)"
     />
 
     <div v-if="!!$slots['right-icon']" class="input-group__icon">
@@ -53,6 +53,15 @@ export default {
       return 'input';
     },
 
+    eventName() {
+      if(this.modelModifiers?.lazy) {
+        return "change";
+      }
+      else {
+        return "input";
+      }
+    },
+
     modelValueProxy: {
       get() {
         return this.modelValue;
@@ -67,16 +76,7 @@ export default {
     focus() {
       this.$refs.input.focus();
     },
-    inputValue(value) {
-      if(this.modelModifiers?.lazy) {
-        return;
-      }
-      this.$emit('update:modelValue', value);
-    },
-    changeValue(value) {
-      if(!this.modelModifiers?.lazy) {
-        return;
-      }
+    handler(value) {
       this.$emit('update:modelValue', value);
     },
   },
