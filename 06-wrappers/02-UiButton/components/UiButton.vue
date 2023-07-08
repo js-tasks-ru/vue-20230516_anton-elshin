@@ -1,5 +1,5 @@
 <template>
-  <component :is="tag" class="button" v-bind="$attrs" :type="tag === 'button' ? $attrs?.type || 'button' : null" :class="{ [`button_${variant}`] : variant, 'button_block' : block }">
+  <component :is="tag" class="button" v-bind="$attrs" :type="type" :class="{ [`button_${variant}`] : variant, 'button_block' : block }">
     <slot />
   </component>
 </template>
@@ -25,21 +25,12 @@ export default {
     },
   },
 
-  computed: {
-    type1() {
-      if(this.tag !== 'button') {
-        return;
-      }
-
-      if(this.$attrs.type) {
-        return this.$attrs.type;
-      }
-      else {
-        return 'button';
-      }
-
-    },
+  data() {
+    return {
+      type: this?.tag === 'button' ? this?.$attrs?.type || 'button' : null,
+    };
   },
+
 };
 </script>
 
