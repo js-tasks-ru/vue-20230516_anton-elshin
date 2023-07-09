@@ -28,37 +28,29 @@ export default {
     }
   },
 
-/*  watch: {
-    modelValue: {
-      deep: true,
-      immediate: true,
-      handler() {
-
-      }
-    }
-  },*/
-
   emits: ['update:modelValue'],
 
   computed: {
     modelValueProxy: {
       get() {
-        const currentDateISO = new Date(new Date().setTime(this.modelValue)).toISOString();
+        if(this.modelValue) {
+          const currentDateISO = new Date(new Date().setTime(this.modelValue)).toISOString();
 
-        if(this.type === 'date') {
-          return currentDateISO.slice(0, 10);
-        }
-        if(this.type === 'time' && (!this.step || this.step % 60 === 0)) {
-          return currentDateISO.slice(11, 16);
-        }
-        else if(this.type === 'time' && this.step) {
-          return currentDateISO.slice(11, 19);
-        }
-        else if(this.type === 'datetime-local') {
-          return currentDateISO.slice(0, 10) + ' ' + currentDateISO.slice(11, 16);
+          if(this.type === 'date') {
+            return currentDateISO.slice(0, 10);
+          }
+          if(this.type === 'time' && (!this.step || this.step % 60 === 0)) {
+            return currentDateISO.slice(11, 16);
+          }
+          else if(this.type === 'time' && this.step) {
+            return currentDateISO.slice(11, 19);
+          }
+          else if(this.type === 'datetime-local') {
+            return currentDateISO.slice(0, 10) + ' ' + currentDateISO.slice(11, 16);
+          }
         }
 
-        return null;
+        return this.modelValue;
       },
 
       set() {
