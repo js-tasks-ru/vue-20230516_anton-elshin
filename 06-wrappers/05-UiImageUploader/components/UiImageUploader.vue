@@ -1,8 +1,8 @@
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview image-uploader__preview-loading" style="--bg-url: url('/link.jpeg')">
-      <span class="image-uploader__text">Загрузить изображение</span>
-      <input type="file" accept="image/*" class="image-uploader__input" />
+    <label class="image-uploader__preview" :class="{ 'image-uploader__preview-loading' : loading }" :style="`--bg-url: url(${link})`">
+      <span class="image-uploader__text">{{ title }}</span>
+      <input ref="fileUploader" type="file" accept="image/*" class="image-uploader__input" v-bind="$attrs" @change="changeFile" @click="clearFile"/>
     </label>
   </div>
 </template>
@@ -10,6 +10,67 @@
 <script>
 export default {
   name: 'UiImageUploader',
+
+  inheritAttrs: false,
+
+  props: {
+    preview: String,
+    uploader: Function,
+  },
+
+  data() {
+    return {
+      link: this.preview ? this.preview : "var(--bg-url)",
+      title: !this.preview ? 'Загрузить изображение' : 'Удалить изображение',
+      loading: false,
+    }
+  },
+
+  emits: ['select', 'upload', 'error', 'remove'],
+
+  methods: {
+    changeFile(event) {
+      if(event.target.files.length > 0 && this.$refs.fileUploader.value !== '') {
+        let file = event.target.files[0];
+        this.$emit('select', file);
+        if(this.uploader) {
+          this.title = 'Загрузка...';
+          this.loading = true;
+          this.uploader(file)
+            .then(
+              result => {
+                this.title = 'Удалить изображение';
+                this.link = URL.createObjectURL(file);
+                this.$emit('upload', result);
+              },
+              error => {
+                this.title = 'Загрузить изображение';
+                this.$refs.fileUploader.value = null;
+                this.$emit('error', error);
+              }
+            )
+            .finally(() => {
+              this.loading = false;
+            });
+        }
+        else {
+          this.title = 'Удалить изображение';
+          this.link = URL.createObjectURL(file);
+        }
+      }
+    },
+    clearFile(event) {
+      if(!this.loading) {
+        this.title = 'Загрузить изображение';
+        if(event.target.files.length > 0 || this.link === this.preview) {
+          event.preventDefault();
+          this.$refs.fileUploader.value = null;
+          this.$emit('remove');
+        }
+        this.link = "var(--bg-url)";
+      }
+    }
+  }
 };
 </script>
 
